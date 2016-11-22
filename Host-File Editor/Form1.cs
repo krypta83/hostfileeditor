@@ -17,6 +17,9 @@ namespace Host_File_Editor
         {
             InitializeComponent();
         }
+        //Pfad definieren
+        private string path = @"C:\Windows\System32\drivers\etc\hosts";
+
         private void Form1_Load(object sender, EventArgs e)
         {
             DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
@@ -26,11 +29,14 @@ namespace Host_File_Editor
             dgv.Columns.Add("spName", "Name");
             dgv.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            //Breite auf 100%
-            //this.dgv.Columns[2].AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //Daten einlesen
+            readFile(path);
 
 
-            string path = @"C:\Windows\System32\drivers\etc\hosts";
+        }
+        
+        private void readFile(string path)
+        {
             string[] s = File.ReadAllLines(path);
             foreach (string x in s)
             {
@@ -45,7 +51,7 @@ namespace Host_File_Editor
                 string ip = lines[0];
                 string host = lines[1];
 
-                if(ip == "#")
+                if (ip == "#")
                 {
                     status = false;
                     ip = lines[1];
@@ -57,7 +63,23 @@ namespace Host_File_Editor
         }
         private void cmdSpeichern_Click(object sender, EventArgs e)
         {
+            //Bestehende Daten löschen
+            //File.WriteAllText(path, String.Empty);
 
+            TextWriter writer = new StreamWriter(path);
+            for (int ir = 0; ir < dgv.Rows.Count - 1; ++ir)
+            {
+                string status = dgv.Rows[ir].Cells[0].Value.ToString();
+                if (status == "False") {
+                    writer.Write("# ");
+                }
+                writer.Write(dgv.Rows[ir].Cells[1].Value.ToString() + " ");
+                writer.Write(dgv.Rows[ir].Cells[2].Value.ToString() + "\n");
+
+            }
+            writer.Close();
+            
         }
+        
     }
 }
